@@ -58,15 +58,3 @@ jobs:
         run: |
           make package
           mv ./packages/Bootstrap.tipa Bootstrap.ipa
-
-      - name: Release ipa
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Bootstrap_${{ env.VERSION }}
-          tag_name: ${{ env.msT }}
-          target_commitish: 4.1
-          body_path: release.txt
-          latest: true
-          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-          files: |
-           *.ipa
