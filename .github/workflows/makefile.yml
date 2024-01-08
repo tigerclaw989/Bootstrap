@@ -41,6 +41,7 @@ jobs:
         if: steps.SDK.outputs.cache-hit != 'true'
         run: |
           git clone https://github.com/chrisharper22/sdks
+          cd sdks
           mv *.sdk $THEOS/sdks
         env:
           THEOS: ${{ github.workspace }}/theos
