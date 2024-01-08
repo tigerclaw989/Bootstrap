@@ -1,60 +1,43 @@
 name: Build and Package
 
+
 on:
-  push:
-    branches: 
-      - main
-  pull_request:
-    branches: 
-      - main
-  workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+push:
 
-permissions:
-  contents: write
+branches: [ "main" ]
 
-env:
-  VERSION: 'beta 4.1'
+pull_request:
+
+branches: [ "main" ]
+
+workflow_dispatch:
+
 
 jobs:
-  build:
-    name: Build Bootstrap
-    runs-on: macos-latest
-    environment: Auto Build And Release
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+build:
 
-      - name: Install Theos
-        run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
+name: Build Bootstrap
 
-      - name: Setup Environment
-        run: echo "THEOS=~/theos" >> $GITHUB_ENV
+runs-on: macos-latest
+steps:
+  - name: Checkout
+    uses: actions/checkout@v3
+    with:
+      submodules: true
 
-      - name: Set env
-        run: |
-          sT=$(TZ=UTC-8 date +'%S')
-          echo "msT=$(date -j -f "%Y-%m-%d %H:%M:%S" "$(TZ=UTC-8 date +'%Y-%m-%d %H:%M'):${sT}" +%s)" >> $GITHUB_ENV
-          echo "logT=$(TZ=UTC-8 date +'%Y年%m月%d %H:%M'):${sT}" >> $GITHUB_ENV
+  - name: Install Theos
+    run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
 
-      - name: Print env
-        run: |
-          echo ${{ env.VERSION }}
-          echo ${{ env.msT }}
-          echo ${{ env.logT }}
+  - name: Setup Environment
+    run: echo "THEOS=~/theos" >> $GITHUB_ENV
 
-      - name: Pre body
-        run: |
-          echo -e "更新时间：${{ env.logT }}" >> release.txt
-          echo -e "> - 同步官方beta 4.1代码更新，个别汉化等我修复" >> release.txt
-      
-      - name: Build Bootstrap
-        run: |
-          make package
-          mv ./packages/Bootstrap.tipa Bootstrap.ipa
+  - name: Make Bootstrap Package
+    run: make package
+
+  - name: Upload Artifact
+    uses: actions/upload-artifact@v3
+    with:
+      name: Bootstrap.tipa
+      path: ./packages/Bootstrap.tipa
